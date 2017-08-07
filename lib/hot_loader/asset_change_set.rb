@@ -4,8 +4,7 @@ module React
       class AssetChangeSet
         attr_reader :since, :path, :changed_files, :changed_file_names
         class_attribute :asset_glob, :bankruptcy_count
-        # Search for changes with this glob
-        self.asset_glob = "/**/*.{css,sass,scss,js,coffee}*"
+
         # If this many files change at once, give up hope! (Probably checked out a new branch)
         self.bankruptcy_count = 5
 
@@ -14,7 +13,8 @@ module React
         def initialize(since:, path: ::Rails.root.join("app/assets"))
           @since = since
           @path = path.to_s
-          asset_glob = File.join(path, AssetChangeSet.asset_glob)
+          # search for changes with these extensions
+          asset_glob = File.join(path, AssetChangeSet.asset_glob || "/**/*.{css,sass,scss,js,coffee}*")
           @changed_files = Dir.glob(asset_glob).select { |f| File.mtime(f) >= since }.uniq
           @changed_file_names = changed_files.map { |f| File.basename(f) }
         end
